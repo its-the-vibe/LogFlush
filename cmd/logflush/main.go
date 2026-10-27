@@ -29,6 +29,10 @@ func main() {
 	})
 	defer redisClient.Close()
 
+	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+		log.Fatalf("connect to Redis: %v", err)
+	}
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 

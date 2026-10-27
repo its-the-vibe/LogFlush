@@ -1,12 +1,18 @@
 services:
   logflush:
     build: .
+    image: ghcr.io/its-the-vibe/logflush:latest
+    pull_policy: always
     read_only: true
     env_file:
       - .env
     volumes:
       - ./config.yaml:/etc/logflush/config.yaml:ro
+      - ./credentials.json:/etc/logflush/credentials.json:ro
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    restart: on-failure:10
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

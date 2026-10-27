@@ -91,7 +91,7 @@ func (w *Worker) Run(ctx context.Context) error {
 			log.Printf("%s", msg)
 			w.batch = append(w.batch, logger.LogEntry{
 				Message:   msg,
-				Severity:  "error",
+				Severity:  "ERROR",
 				Service:   "LogFlush",
 				Timestamp: time.Now(),
 			})
