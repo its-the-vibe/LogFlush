@@ -22,9 +22,11 @@ cp config.example.yaml config.yaml
 cp .env.example .env
 ```
 
-Set `gcp_project_id` in `config.yaml` and update `redis_address`, `redis_key`, `gcp_log_name`, `batch_size`, and `flush_interval` as needed. Do not put credentials in the YAML file. Put `REDIS_PASSWORD` in `.env`; `.env` and `config.yaml` are gitignored. Environment variables override YAML values. Supported overrides include `REDIS_ADDRESS`, `REDIS_USERNAME`, `REDIS_PASSWORD`, `REDIS_KEY`, `GCP_PROJECT_ID`, `GCP_LOG_NAME`, `BATCH_SIZE`, and `FLUSH_INTERVAL`.
+Set `gcp_project_id` in `config.yaml` and update `redis_address`, `redis_key`, `gcp_log_name`, `batch_size`, and `flush_interval` as needed. Do not put credentials in the YAML file. Put `REDIS_PASSWORD` in `.env`; `.env` and `config.yaml` are gitignored. Environment variables override YAML values. Supported overrides include `REDIS_ADDRESS`, `REDIS_USERNAME`, `REDIS_PASSWORD`, `REDIS_KEY`, `GCP_PROJECT_ID`, `GCP_LOG_NAME`, `GCP_CREDENTIALS_FILE`, `BATCH_SIZE`, and `FLUSH_INTERVAL`.
 
-The worker uses Google Application Default Credentials. For local development, authenticate with `gcloud auth application-default login`; in production, use the runtime's attached service account with permission to write Cloud Logging entries. Redis must be reachable from the worker.
+Optionally set `gcp_credentials_file` in `config.yaml` (or `GCP_CREDENTIALS_FILE`) to the path of a service account JSON key file, for example `gcp_credentials_file: /secrets/gcp-key.json`. If the file is missing or invalid, the worker fails at startup. Mount the key read-only and never commit it.
+
+When no credentials file is set, the worker uses Google Application Default Credentials. For local development, authenticate with `gcloud auth application-default login`; in production, use the runtime's attached service account with permission to write Cloud Logging entries. Redis must be reachable from the worker.
 
 ## Client example
 

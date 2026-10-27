@@ -3,9 +3,12 @@ package worker
 import (
 	"context"
 	"errors"
+	"fmt"
+	"os"
 
 	"cloud.google.com/go/logging"
 	"github.com/its-the-vibe/LogFlush/pkg/logger"
+	"google.golang.org/api/option"
 )
 
 type logWriter interface {
@@ -17,12 +20,24 @@ type cloudWriter struct {
 	logger *logging.Logger
 }
 
-// NewCloudWriter connects to Google Cloud Logging using application default credentials.
-func NewCloudWriter(ctx context.Context, projectID, logName string) (*cloudWriter, error) {
+// NewCloudWriter connects to Google Cloud Logging. If credentialsFile is empty,
+// application default credentials are used.
+func NewCloudWriter(ctx context.Context, projectID, logName, credentialsFile string) (*cloudWriter, error) {
 	if projectID == "" || logName == "" {
 		return nil, errors.New("GCP project ID and log name are required")
 	}
-	client, err := logging.NewClient(ctx, projectID)
+	var opts []option.ClientOption
+	if credentialsFile != "" {
+		info, err := os.Stat(credentialsFile)
+		if err != nil {
+			return nil, fmt.Errorf("GCP credentials file: %w", err)
+		}
+		if info.IsDir() {
+			return nil, fmt.Errorf("GCP credentials file %q is a directory", credentialsFile)
+		}
+		opts = append(opts, option.WithCredentialsFile(credentialsFile))
+	}
+	client, err := logging.NewClient(ctx, projectID, opts...)
 	if err != nil {
 		return nil, err
 	}
