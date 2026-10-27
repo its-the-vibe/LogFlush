@@ -5,3 +5,5 @@ gcp_project_id: your-gcp-project-id
 gcp_log_name: logflush
 batch_size: 100
 flush_interval: 2s
+# Optional: path to a service account JSON key; defaults to Application Default Credentials
+# gcp_credentials_file: /secrets/gcp-key.json

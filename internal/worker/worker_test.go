@@ -60,3 +60,10 @@ func TestFlushPreservesBatchWhenContextEnds(t *testing.T) {
 		t.Fatal("batch should remain available when writing fails")
 	}
 }
+
+func TestNewCloudWriterRejectsMissingCredentialsFile(t *testing.T) {
+	_, err := NewCloudWriter(context.Background(), "project", "log", "/nonexistent/key.json")
+	if err == nil {
+		t.Fatal("expected error for missing credentials file")
+	}
+}

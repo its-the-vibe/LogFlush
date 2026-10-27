@@ -13,24 +13,26 @@ import (
 
 // Config contains the worker's non-secret settings and runtime credentials.
 type Config struct {
-	RedisAddress  string        `yaml:"redis_address"`
-	RedisUsername string        `yaml:"redis_username"`
-	RedisPassword string        `yaml:"-"`
-	RedisKey      string        `yaml:"redis_key"`
-	GCPProjectID  string        `yaml:"gcp_project_id"`
-	GCPLogName    string        `yaml:"gcp_log_name"`
-	BatchSize     int           `yaml:"batch_size"`
-	FlushInterval time.Duration `yaml:"-"`
+	RedisAddress       string        `yaml:"redis_address"`
+	RedisUsername      string        `yaml:"redis_username"`
+	RedisPassword      string        `yaml:"-"`
+	RedisKey           string        `yaml:"redis_key"`
+	GCPProjectID       string        `yaml:"gcp_project_id"`
+	GCPLogName         string        `yaml:"gcp_log_name"`
+	GCPCredentialsFile string        `yaml:"gcp_credentials_file"`
+	BatchSize          int           `yaml:"batch_size"`
+	FlushInterval      time.Duration `yaml:"-"`
 }
 
 type fileConfig struct {
-	RedisAddress  string `yaml:"redis_address"`
-	RedisUsername string `yaml:"redis_username"`
-	RedisKey      string `yaml:"redis_key"`
-	GCPProjectID  string `yaml:"gcp_project_id"`
-	GCPLogName    string `yaml:"gcp_log_name"`
-	BatchSize     int    `yaml:"batch_size"`
-	FlushInterval string `yaml:"flush_interval"`
+	RedisAddress       string `yaml:"redis_address"`
+	RedisUsername      string `yaml:"redis_username"`
+	RedisKey           string `yaml:"redis_key"`
+	GCPProjectID       string `yaml:"gcp_project_id"`
+	GCPLogName         string `yaml:"gcp_log_name"`
+	GCPCredentialsFile string `yaml:"gcp_credentials_file"`
+	BatchSize          int    `yaml:"batch_size"`
+	FlushInterval      string `yaml:"flush_interval"`
 }
 
 // Load reads a YAML configuration file and applies environment overrides.
@@ -64,6 +66,7 @@ func Load(path string) (Config, error) {
 		if file.GCPLogName != "" {
 			cfg.GCPLogName = file.GCPLogName
 		}
+		cfg.GCPCredentialsFile = file.GCPCredentialsFile
 		if file.BatchSize != 0 {
 			cfg.BatchSize = file.BatchSize
 		}
@@ -91,6 +94,9 @@ func Load(path string) (Config, error) {
 	}
 	if value, ok := os.LookupEnv("GCP_LOG_NAME"); ok {
 		cfg.GCPLogName = value
+	}
+	if value, ok := os.LookupEnv("GCP_CREDENTIALS_FILE"); ok {
+		cfg.GCPCredentialsFile = value
 	}
 	if value, ok := os.LookupEnv("BATCH_SIZE"); ok {
 		batchSize, err := strconv.Atoi(value)

@@ -36,3 +36,19 @@ func TestLoadRejectsInvalidFlushInterval(t *testing.T) {
 		t.Fatal("expected invalid flush interval error")
 	}
 }
+
+func TestLoadReadsCredentialsFile(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := os.WriteFile(path, []byte("gcp_project_id: project\ngcp_credentials_file: /from/file.json\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(path)
+	if err != nil || cfg.GCPCredentialsFile != "/from/file.json" {
+		t.Fatalf("unexpected result: %#v, %v", cfg, err)
+	}
+	t.Setenv("GCP_CREDENTIALS_FILE", "/from/env.json")
+	cfg, err = Load(path)
+	if err != nil || cfg.GCPCredentialsFile != "/from/env.json" {
+		t.Fatalf("unexpected result: %#v, %v", cfg, err)
+	}
+}
