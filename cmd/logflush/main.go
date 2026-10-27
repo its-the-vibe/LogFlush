@@ -32,7 +32,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	cloudWriter, err := worker.NewCloudWriter(ctx, cfg.GCPProjectID, cfg.GCPLogName)
+	cloudWriter, err := worker.NewCloudWriter(context.Background(), cfg.GCPProjectID, cfg.GCPLogName)
 	if err != nil {
 		log.Fatalf("create Cloud Logging client: %v", err)
 	}

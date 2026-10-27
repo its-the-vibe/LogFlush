@@ -49,20 +49,30 @@ func (w *Worker) Run(ctx context.Context) error {
 	ticker := time.NewTicker(w.flushInterval)
 	defer ticker.Stop()
 
+	shutdown := func() error {
+		flushCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+		defer cancel()
+		return w.flushWithRetry(flushCtx)
+	}
+
 	for {
 		if len(w.batch) >= w.batchSize {
 			if err := w.flushWithRetry(ctx); err != nil {
+				if ctx.Err() != nil {
+					return shutdown()
+				}
 				return err
 			}
 		}
 
 		select {
 		case <-ctx.Done():
-			flushCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-			defer cancel()
-			return w.flushWithRetry(flushCtx)
+			return shutdown()
 		case <-ticker.C:
-			if err := w.flushWithRetry(ctx); err != nil && ctx.Err() == nil {
+			if err := w.flushWithRetry(ctx); err != nil {
+				if ctx.Err() != nil {
+					return shutdown()
+				}
 				log.Printf("flush logs: %v", err)
 			}
 			continue
