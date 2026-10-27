@@ -87,7 +87,14 @@ func (w *Worker) Run(ctx context.Context) error {
 			if ctx.Err() != nil {
 				continue
 			}
-			log.Printf("read Redis queue: %v", err)
+			msg := "read Redis queue: " + err.Error()
+			log.Printf("%s", msg)
+			w.batch = append(w.batch, logger.LogEntry{
+				Message:   msg,
+				Severity:  "error",
+				Service:   "LogFlush",
+				Timestamp: time.Now(),
+			})
 			if !wait(ctx, redisPollInterval) {
 				continue
 			}
